@@ -311,10 +311,12 @@ async function getAccessToken(
     return tokenCache.token;
   }
 
-  const res = await fetch(`${baseUrl}/api/v1/token/login`, {
+  // Freqtrade expects HTTP Basic Auth on /token/login (not a form body).
+  // See: https://www.freqtrade.io/en/stable/rest-api/
+  const basic = Buffer.from(`${username}:${password}`).toString("base64");
+  const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/v1/token/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ username, password }),
+    headers: { Authorization: `Basic ${basic}` },
     cache: "no-store",
   });
 
@@ -406,7 +408,7 @@ type ShowConfig = {
 
 export async function fetchBotSnapshot(): Promise<BotSnapshot> {
   const useMock = process.env.USE_MOCK_DATA === "true";
-  const baseUrl = process.env.FREQTRADE_API_URL;
+  const baseUrl = (process.env.FREQTRADE_API_URL ?? "").replace(/\/$/, "");
   const username = process.env.FREQTRADE_API_USERNAME ?? "odelf";
   const password = process.env.FREQTRADE_API_PASSWORD ?? "odelf";
 
@@ -537,6 +539,11 @@ export async function fetchBotSnapshot(): Promise<BotSnapshot> {
   } catch (err) {
     console.error("Freqtrade fetch failed, falling back to mock:", err);
     const mock = getMockSnapshot();
-    return { ...mock, online: false, mock: true };
+    return {
+      ...mock,
+      online: false,
+      mock: true,
+      error: err instanceof Error ? err.message : "Freqtrade fetch failed",
+    };
   }
 }

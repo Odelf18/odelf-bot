@@ -92,6 +92,8 @@ export type SessionMeta = {
 export type BotSnapshot = {
   online: boolean;
   mock: boolean;
+  /** Present when live fetch failed and we fell back to mock. */
+  error?: string;
   updatedAt: string;
   state?: string;
   strategy?: string;

@@ -175,6 +175,11 @@ export function LiveDashboard() {
             {data?.mock ? "DEMO FEED" : "LIVE FEED"}
             {ago ? ` · ${ago}` : ""}
           </span>
+          {data?.error ? (
+            <span className="mono meta" style={{ color: "var(--loss)" }}>
+              · {data.error}
+            </span>
+          ) : null}
         </div>
       </div>
 

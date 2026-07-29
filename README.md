@@ -142,7 +142,7 @@ If Root Directory is `.` (repo root), Vercel cannot find the Next.js app → **4
 
 | Variable | Value |
 |----------|--------|
-| `FREQTRADE_API_URL` | `https://odelf-bot.herokuapp.com` |
+| `FREQTRADE_API_URL` | `https://odelf-bot-e9994e96cef6.herokuapp.com` |
 | `FREQTRADE_API_USERNAME` | `odelf` |
 | `FREQTRADE_API_PASSWORD` | same as Heroku `API_PASSWORD` |
 | `USE_MOCK_DATA` | `false` |
