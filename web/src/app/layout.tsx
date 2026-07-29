@@ -23,7 +23,7 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Odelf Bot — Paper futures. Live PnL.",
   description:
-    "Public paper-trading showcase: Binance Futures dry-run with OdelfTrend and a live PnL board.",
+    "Public paper-trading showcase: crypto futures dry-run with OdelfTrend and a live PnL board.",
 };
 
 export default function RootLayout({

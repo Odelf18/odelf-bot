@@ -125,7 +125,7 @@ export function HeroLive() {
         <p className="brand-hero">Odelf Bot</p>
         <h1 className="headline">The bot is trading. Watch the paper session live.</h1>
         <p className="lede">
-          Binance Futures dry-run on OdelfTrend — positions, fills and PnL update
+          Crypto futures dry-run on OdelfTrend — positions, fills and PnL update
           every few seconds. Not a mock landing: a running paper desk.
         </p>
         <div className="cta-row">

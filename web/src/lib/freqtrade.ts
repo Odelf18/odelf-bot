@@ -31,7 +31,7 @@ const SESSION: SessionMeta = {
   stake_currency: "USDT",
   trading_mode: "futures",
   dry_run: true,
-  exchange: "binance",
+  exchange: "bybit",
   whitelist: WHITELIST,
 };
 

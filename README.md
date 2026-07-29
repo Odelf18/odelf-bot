@@ -67,34 +67,87 @@ FREQTRADE_STRATEGY=OdelfPulse docker compose up --build
 
 ## Deploy
 
-### Heroku (bot)
+### Heroku (bot) — Apple Silicon note
+
+Heroku only accepts **linux/amd64** images. On an M1/M2/M3 Mac, plain
+`heroku container:push` builds `arm64` and fails with `error from registry: unsupported`.
+
+**Recommended (script):**
 
 ```bash
-heroku create odelf-bot
-heroku stack:set container
-heroku addons:create heroku-postgresql:essential-0
-heroku config:set \
+chmod +x scripts/deploy-heroku.sh
+./scripts/deploy-heroku.sh odelf-bot
+```
+
+**Or manually:**
+
+```bash
+heroku container:login
+docker buildx build \
+  --platform linux/amd64 \
+  --provenance=false \
+  --sbom=false \
+  -t registry.heroku.com/odelf-bot/web \
+  --load .
+docker push registry.heroku.com/odelf-bot/web
+heroku container:release web -a odelf-bot
+```
+
+One-time app setup (if not done yet) — **must be EU for Binance**:
+
+Heroku common runtime only allows region at **create** time (`us` or `eu`).
+US dynos get Binance.com **HTTP 451** (geo-blocked). Recreate in EU:
+
+```bash
+chmod +x scripts/heroku-eu-setup.sh scripts/deploy-heroku.sh
+./scripts/heroku-eu-setup.sh odelf-bot   # renames old US app → odelf-bot-us-old, creates EU app
+./scripts/deploy-heroku.sh odelf-bot
+heroku logs --tail -a odelf-bot
+```
+
+Manual equivalent:
+
+```bash
+heroku apps:rename odelf-bot-us-old -a odelf-bot   # if US app exists
+heroku create odelf-bot --region eu
+heroku stack:set container -a odelf-bot
+heroku addons:create heroku-postgresql:essential-0 -a odelf-bot
+heroku config:set -a odelf-bot \
   API_USERNAME=odelf \
   API_PASSWORD='strong-password' \
-  JWT_SECRET_KEY='long-random-string' \
-  FREQTRADE_STRATEGY=OdelfTrend
-heroku container:push web
-heroku container:release web
+  JWT_SECRET_KEY="$(openssl rand -hex 32)" \
+  FREQTRADE_STRATEGY=OdelfTrend \
+  FREQTRADE__EXCHANGE__KEY='...' \
+  FREQTRADE__EXCHANGE__SECRET='...'
+./scripts/deploy-heroku.sh odelf-bot
 ```
+
+Verify: `heroku info -a odelf-bot` → **Region: eu**
+
+If the dyno crashes with `ModuleNotFoundError: No module named 'freqtrade'`,
+rebuild/redeploy — the Dockerfile sets `PYTHONUSERBASE=/home/ftuser/.local`
+(Heroku runs containers as a random UID, which breaks `pip --user` otherwise).
 
 `DATABASE_URL` is injected by the Postgres addon. The entrypoint rewrites `postgres://` → `postgresql://` for SQLAlchemy.
 
 ### Vercel (dashboard)
 
-1. Import the `web/` directory (or monorepo root with Root Directory = `web`).
-2. Set env:
+**Critical:** set **Root Directory** to `web` (Project Settings → General → Root Directory).
+If Root Directory is `.` (repo root), Vercel cannot find the Next.js app → **404**.
+
+1. Push the repo to GitHub
+2. Vercel → Import → select `Odelf18/odelf-bot`
+3. Root Directory: **`web`** → Deploy
+4. Env vars:
 
 | Variable | Value |
 |----------|--------|
-| `FREQTRADE_API_URL` | `https://your-heroku-app.herokuapp.com` |
-| `FREQTRADE_API_USERNAME` | same as Heroku |
-| `FREQTRADE_API_PASSWORD` | same as Heroku |
+| `FREQTRADE_API_URL` | `https://odelf-bot.herokuapp.com` |
+| `FREQTRADE_API_USERNAME` | `odelf` |
+| `FREQTRADE_API_PASSWORD` | same as Heroku `API_PASSWORD` |
 | `USE_MOCK_DATA` | `false` |
+
+5. Redeploy after changing Root Directory or env vars
 
 JWT credentials stay server-side in Route Handlers — never expose them to the browser.
 

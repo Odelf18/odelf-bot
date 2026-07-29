@@ -31,7 +31,7 @@ export default function HomePage() {
             <span className="stack-desc">Open-source crypto trading engine</span>
           </li>
           <li>
-            <span className="stack-name">Binance Futures</span>
+            <span className="stack-name">Bybit Futures</span>
             <span className="stack-desc">Isolated margin · dry-run simulation</span>
           </li>
           <li>
