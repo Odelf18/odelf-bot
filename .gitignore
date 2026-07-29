@@ -1,0 +1,13 @@
+bot/user_data/logs/
+bot/user_data/data/
+bot/user_data/*.sqlite
+bot/user_data/*.sqlite-*
+.env
+.env.local
+web/.env.local
+web/node_modules/
+web/.next/
+web/out/
+.DS_Store
+*.pyc
+__pycache__/

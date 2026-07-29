@@ -1,0 +1,16 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      FREQTRADE_STRATEGY: OdelfTrend
+      API_USERNAME: odelf
+      API_PASSWORD: odelf
+      JWT_SECRET_KEY: local-dev-jwt-secret-change-me
+    volumes:
+      - ./bot/user_data:/freqtrade/user_data
+    restart: unless-stopped
